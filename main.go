@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/paypermint/mskit"
+
+	"github.com/paypermint/appkit"
 )
 
 const (
@@ -10,16 +11,14 @@ const (
 )
 
 func main() {
-	mskit.Init(serviceName)
-	mskit.RequireFlags(mskit.F_GRPC | mskit.F_LOG | mskit.F_HEALTH | mskit.F_KEY | mskit.F_REGION)x
-	mskit.LoadValidators()
+	appkit.RequireFlags(appkit.F_WEB | appkit.F_LOG | appkit.F_HEALTH | appkit.F_REGION)
 	flag.Parse()
+	config := appkit.GetAppConfig()
+	log := appkit.NewLogger(config.Log)
+	appctx := appkit.NewAppContext(config, log)
 
-	config := mskit.GetConfig()
+	defer appctx.Cleanup()
 
-	log := mskit.NewLogger(config.Log)
-	sctx := mskit.NewServiceContext(config, log)
-	defer sctx.Cleanup()
+	go appkit.StartHealthCheckEndpoint(appctx)
 
-	go mskit.StartHealthCheckEndpoint(sctx)
 }
