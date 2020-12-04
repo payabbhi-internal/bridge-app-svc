@@ -26,3 +26,5 @@ _testmain.go
 *bridge-app-svc*.sh
 *.tar.gz
 bridge-app-svc
+*.mod
+*.sum
