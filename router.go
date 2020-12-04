@@ -13,7 +13,14 @@ func setRouter() *mux.Router {
 	router.NotFoundHandler = http.HandlerFunc(handlers.NotFound)
 	router.HandleFunc("/apilist", handlers.GetAPIList).Methods("GET")
 	apiV1 := router.PathPrefix("/api/v2").Subrouter()
-	routesList := []models.Route{}
+	routesList := []models.Route{
+		models.Route{
+			Name:        "SyncCustomersAPI",
+			Methods:     []string{"GET"},
+			Pattern:     "/customers",
+			HandlerFunc: handlers.SyncCustomers,
+		},
+	}
 
 	for _, route := range routesList {
 		apiV1.
