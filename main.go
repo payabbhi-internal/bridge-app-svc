@@ -4,10 +4,22 @@ import (
 	"flag"
 
 	"github.com/paypermint/appkit"
+	"github.com/paypermint/bridge-app-svc/handlers"
+	"github.com/paypermint/bridge-app-svc/helpers"
+	"github.com/paypermint/bridge-app-svc/interceptors"
+	"github.com/unrolled/render"
+	"github.com/unrolled/secure"
+	"github.com/urfave/negroni"
+	"google.golang.org/grpc/grpclog"
 )
 
 const (
 	serviceName = "bridge-app-svc"
+)
+
+var (
+	dynamicHost          = flag.String("dynamic-host", "localhost:50062", "Dynamic host")
+	identityPublicAPIkey = flag.String("identity-publicapi-key", "ppm/identity/secret", "Identity PublicAPI Key")
 )
 
 func main() {
@@ -19,6 +31,30 @@ func main() {
 
 	defer appctx.Cleanup()
 
+	grpclog.SetLogger(appkit.NewGrpcLogger(log))
+	handlers.SetAppContext(appctx)
 	go appkit.StartHealthCheckEndpoint(appctx)
+	helpers.SetDynamicHost(*dynamicHost)
+	helpers.SetIdentityPublicAPIKey(*identityPublicAPIkey)
+
+	appctx.Renderer = render.New(render.Options{
+		IndentJSON: true,
+	})
+
+	secureMiddleware := secure.New(secure.Options{
+		STSSeconds:           315360000,
+		STSIncludeSubdomains: true,
+	})
+
+	//sets routes
+	router := setRouter()
+	// Start server
+	n := negroni.New()
+	n.Use(interceptors.NewRecoveryInterceptor(appctx))
+	n.Use(negroni.HandlerFunc(secureMiddleware.HandlerFuncWithNext))
+	n.Use(interceptors.NewLoggingInterceptor(appctx))
+
+	n.UseHandler(router)
+	appkit.StartWeb(appctx, n)
 
 }
