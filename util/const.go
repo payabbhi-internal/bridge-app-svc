@@ -254,3 +254,7 @@ const (
 	KeyAmountFrom   = "amount_from"
 	KeyAmountTo     = "amount_to"
 )
+
+const (
+	KeyFilePath = "file_path"
+)

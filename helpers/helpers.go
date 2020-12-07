@@ -1,11 +1,14 @@
 package helpers
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 
@@ -161,4 +164,71 @@ func HasUnsupportedParameters(data map[string]string, keys ...string) (string, b
 		}
 	}
 	return EmptyString, false
+}
+
+//ReadCSVFromURL returns data from file location at a given url
+func ReadCSVFromURL(url string) ([][]string, error) {
+	resp, err := http.Get("file:/" + url)
+	if err != nil {
+		fmt.Println("Err::  ", err)
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	reader := csv.NewReader(resp.Body)
+	reader.Comma = ';'
+	data, err := reader.ReadAll()
+	if err != nil {
+		fmt.Println("Err1::  ", err)
+		return nil, err
+	}
+
+	return data, nil
+}
+
+//ReadCSVFile returns data from file location
+func ReadCSVFile(filePath string) ([][]string, error) {
+	data := make([][]string, 0)
+	csvFile, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("error coming here")
+		return data, err
+	}
+	r := csv.NewReader(csvFile)
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			fmt.Println("Ending now")
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// fmt.Println(record)
+		data = append(data, record)
+	}
+	return data, nil
+}
+
+//GetStringParam returns the value of key in params
+func GetStringParam(params map[string]string, key string) (string, error) {
+	if value, ok := params[key]; ok {
+		if value == EmptyString {
+			return EmptyString, errors.New(util.InvalidPostParameterMsg)
+		}
+		return value, nil
+	}
+	return EmptyString, errors.New(util.MissingMandatoryField)
+}
+
+//GetOptionalStringParam returns the value of key in params
+func GetOptionalStringParam(params map[string]string, key string) (string, error) {
+	if value, ok := params[key]; ok {
+		if value == EmptyString {
+			return EmptyString, errors.New(util.InvalidPostParameterMsg)
+		}
+		return value, nil
+	}
+	return EmptyString, nil
 }

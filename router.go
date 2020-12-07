@@ -16,7 +16,7 @@ func setRouter() *mux.Router {
 	routesList := []models.Route{
 		models.Route{
 			Name:        "SyncCustomersAPI",
-			Methods:     []string{"GET"},
+			Methods:     []string{"POST"},
 			Pattern:     "/customers",
 			HandlerFunc: handlers.SyncCustomers,
 		},

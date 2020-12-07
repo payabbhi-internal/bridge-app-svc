@@ -1,15 +1,17 @@
 package helpers
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
 const (
-	PayabbhiBaseURL = "https://0.0.0.0:50091/api/v1"
+	PayabbhiBaseURL = "https://localhost:50091/api/v1"
 )
 
 // Client .
@@ -44,9 +46,19 @@ type payabbhiSuccessResponse struct {
 	Data interface{} `json:"data"`
 }
 
+//ChangeBaseURL changes the base url field set in header
+func ChangeBaseURL(req *http.Request, c *Client) {
+	if req.Host == "pay.in" || req.Host == "payngo.in" || req.Host == "payabbhi.com" {
+		c.baseURL = fmt.Sprintf("https://%s", req.Host)
+	}
+}
+
 // Content-type and body should be already added to req
 func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 	fmt.Println("inside sendRequestToPayabbhi")
+	if strings.Contains(req.Host, "localhost") {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 	// req.Header.Set("Authorization", fmt.Sprintf("Basic Auth %s %s", c.accessID, c.secretKey))
 	req.SetBasicAuth(c.accessID, c.secretKey)
