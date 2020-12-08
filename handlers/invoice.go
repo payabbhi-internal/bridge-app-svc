@@ -24,14 +24,14 @@ func SyncInvoices(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("***who:", r.Header.Get("who"))
 
-	accessID, secretKey, err := helpers.GetCredentialsFromRequestHeader(r)
+	basicAuthCreds, brererTokenCreds, err := helpers.GetCredentialsFromRequestHeader(r)
 	if err != nil {
 		ctxLogger.Crit(err.Error())
 		util.RenderAPIErrorJSON(appCtx, w)
 		return
 	}
 
-	c := helpers.NewClient(accessID, secretKey, r.RemoteAddr)
+	c := helpers.NewClient(basicAuthCreds, brererTokenCreds, r.RemoteAddr)
 
 	searchInvoicesRequest := &helpers.SearchInvoicesRequest{
 		MerchantInvoiceID: params[util.KeyMerchantInvoiceID],

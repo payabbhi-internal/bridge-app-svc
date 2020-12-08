@@ -16,18 +16,30 @@ const (
 
 // Client .
 type Client struct {
-	accessID   string
-	secretKey  string
-	baseURL    string
-	remoteAddr string
-	HTTPClient *http.Client
+	basicAuthCreds *BasicAuthCreds
+	tokenAuthCreds *BearerAuthCreds
+	baseURL        string
+	remoteAddr     string
+	HTTPClient     *http.Client
+}
+
+//BasicAuthCreds .
+type BasicAuthCreds struct {
+	accessID  string
+	secretKey string
+}
+
+//BearerAuthCreds .
+type BearerAuthCreds struct {
+	token       string
+	environment string
 }
 
 // NewClient creates client with given API keys
-func NewClient(accessID, secretKey, remoteAddr string) *Client {
+func NewClient(basicAuthCreds *BasicAuthCreds, bearerTokenCreds *BearerAuthCreds, remoteAddr string) *Client {
 	return &Client{
-		accessID:  accessID,
-		secretKey: secretKey,
+		basicAuthCreds: basicAuthCreds,
+		tokenAuthCreds: bearerTokenCreds,
 		HTTPClient: &http.Client{
 			Timeout: 5 * time.Minute,
 		},
@@ -60,8 +72,13 @@ func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 	req.Header.Set("Accept", "application/json; charset=utf-8")
-	// req.Header.Set("Authorization", fmt.Sprintf("Basic Auth %s %s", c.accessID, c.secretKey))
-	req.SetBasicAuth(c.accessID, c.secretKey)
+	if c.basicAuthCreds != nil {
+		req.SetBasicAuth(c.basicAuthCreds.accessID, c.basicAuthCreds.secretKey)
+	}
+	if c.tokenAuthCreds != nil {
+		req.Header.Add("Authorization", c.tokenAuthCreds.token)
+		// req.Header.Add("env", c.tokenAuthCreds.environment)
+	}
 	req.RemoteAddr = ""
 	fmt.Println("***req.Header:", req.Header)
 	fmt.Println("***authorization:", req.Header.Get("Authorization"))

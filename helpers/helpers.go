@@ -11,6 +11,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/paypermint/bridge-app-svc/util"
 )
@@ -39,15 +40,36 @@ const (
 	b2bPortalDomain       = "b2b_portal"
 )
 
-func GetCredentialsFromRequestHeader(request *http.Request) (string, string, error) {
-	accessID, secretKey, ok := request.BasicAuth()
-	if !ok {
-		return "", "", errors.New(authError)
+func isJWTAuthenticationRequest(request *http.Request) (string, bool) {
+	authToken := request.Header.Get("Authorization")
+	return authToken, strings.HasPrefix(authToken, validAuthPrefix)
+}
+
+//GetCredentialsFromRequestHeader .
+func GetCredentialsFromRequestHeader(request *http.Request) (*BasicAuthCreds, *BearerAuthCreds, error) {
+	authToken, authTokenOk := isJWTAuthenticationRequest(request)
+	accessID, secretKey, basicAuthOk := request.BasicAuth()
+
+	if !basicAuthOk && !authTokenOk {
+		return nil, nil, errors.New(headerValueMissing)
 	}
-	if accessID == "" || secretKey == "" {
-		return "", "", errors.New(headerValueMissing)
+	if !basicAuthOk {
+		return nil, &BearerAuthCreds{
+			token: authToken,
+		}, nil
 	}
-	return accessID, secretKey, nil
+	if !authTokenOk {
+		return &BasicAuthCreds{
+			accessID:  accessID,
+			secretKey: secretKey,
+		}, nil, nil
+	}
+	return &BasicAuthCreds{
+			accessID:  accessID,
+			secretKey: secretKey,
+		}, &BearerAuthCreds{
+			token: authToken,
+		}, nil
 }
 
 //GetRequestParams takes the request params and depending on the method forms the params

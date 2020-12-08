@@ -19,7 +19,7 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Println("***who:", req.Header.Get("who"))
 
-	accessID, secretKey, err := helpers.GetCredentialsFromRequestHeader(req)
+	basicAuthCreds, brererTokenCreds, err := helpers.GetCredentialsFromRequestHeader(req)
 	if err != nil {
 		ctxLogger.Crit(err.Error())
 		util.RenderAPIErrorJSON(appCtx, w)
@@ -54,7 +54,7 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(customerData)
 	}
 
-	client := helpers.NewClient(accessID, secretKey, req.RemoteAddr)
+	client := helpers.NewClient(basicAuthCreds, brererTokenCreds, req.RemoteAddr)
 	for index, customerData := range customersData {
 
 		if index == 0 {
