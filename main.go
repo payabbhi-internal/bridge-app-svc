@@ -20,6 +20,7 @@ const (
 var (
 	dynamicHost          = flag.String("dynamic-host", "localhost:50062", "Dynamic host")
 	identityPublicAPIkey = flag.String("identity-publicapi-key", "ppm/identity/secret", "Identity PublicAPI Key")
+	bucketRegion         = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
 )
 
 func main() {
@@ -30,13 +31,12 @@ func main() {
 	appctx := appkit.NewAppContext(config, log)
 
 	defer appctx.Cleanup()
-
 	grpclog.SetLogger(appkit.NewGrpcLogger(log))
 	handlers.SetAppContext(appctx)
 	go appkit.StartHealthCheckEndpoint(appctx)
 	helpers.SetDynamicHost(*dynamicHost)
 	helpers.SetIdentityPublicAPIKey(*identityPublicAPIkey)
-
+	helpers.SetBucketConfig(*bucketRegion)
 	appctx.Renderer = render.New(render.Options{
 		IndentJSON: true,
 	})
@@ -53,8 +53,6 @@ func main() {
 	n.Use(interceptors.NewRecoveryInterceptor(appctx))
 	n.Use(negroni.HandlerFunc(secureMiddleware.HandlerFuncWithNext))
 	n.Use(interceptors.NewLoggingInterceptor(appctx))
-
 	n.UseHandler(router)
 	appkit.StartWeb(appctx, n)
-
 }
