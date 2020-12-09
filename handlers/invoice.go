@@ -32,7 +32,7 @@ func SyncInvoices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := helpers.NewClient(basicAuthCreds, brererTokenCreds, r.RemoteAddr)
-
+	helpers.ChangeBaseURL(r, c)
 	searchInvoicesRequest := &helpers.SearchInvoicesRequest{
 		MerchantInvoiceID: params[util.KeyMerchantInvoiceID],
 	}

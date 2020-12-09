@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/paypermint/appkit"
 	"github.com/paypermint/bridge-app-svc/helpers"
 	"github.com/paypermint/bridge-app-svc/util"
@@ -44,17 +43,18 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	customersDataFromS3, err := helpers.GetS3File(ctxLogger, "", "", "", "customers.csv", mux.Vars(req)["id"])
-	if err != nil {
-		ctxLogger.Error(err.Error())
-		return
-	}
-
-	for _, customerData := range customersDataFromS3 {
-		fmt.Println(customerData)
-	}
+	// customersDataFromS3, err := helpers.GetS3File(ctxLogger, "", "", "", "customers.csv", mux.Vars(req)["id"])
+	// if err != nil {
+	// 	ctxLogger.Error(err.Error())
+	// 	return
+	// }
+	//
+	// for _, customerData := range customersDataFromS3 {
+	// 	fmt.Println(customerData)
+	// }
 
 	client := helpers.NewClient(basicAuthCreds, brererTokenCreds, req.RemoteAddr)
+	helpers.ChangeBaseURL(req, client)
 	for index, customerData := range customersData {
 
 		if index == 0 {

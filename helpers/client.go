@@ -60,9 +60,7 @@ type payabbhiSuccessResponse struct {
 
 //ChangeBaseURL changes the base url field set in header
 func ChangeBaseURL(req *http.Request, c *Client) {
-	if req.Host == "pay.in" || req.Host == "payngo.in" || req.Host == "payabbhi.com" {
-		c.baseURL = fmt.Sprintf("https://%s", req.Host)
-	}
+	c.baseURL = fmt.Sprintf("https://%s/api/v1", GetDynamicHost())
 }
 
 // Content-type and body should be already added to req

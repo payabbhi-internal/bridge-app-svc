@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	dynamicHost          = flag.String("dynamic-host", "localhost:50062", "Dynamic host")
+	dynamicHost          = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
 	identityPublicAPIkey = flag.String("identity-publicapi-key", "ppm/identity/secret", "Identity PublicAPI Key")
 	bucketRegion         = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
 )
