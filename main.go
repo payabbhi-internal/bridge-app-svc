@@ -18,9 +18,8 @@ const (
 )
 
 var (
-	dynamicHost          = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
-	identityPublicAPIkey = flag.String("identity-publicapi-key", "ppm/identity/secret", "Identity PublicAPI Key")
-	bucketRegion         = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
+	dynamicHost  = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
+	bucketRegion = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
 )
 
 func main() {
@@ -35,7 +34,6 @@ func main() {
 	handlers.SetAppContext(appctx)
 	go appkit.StartHealthCheckEndpoint(appctx)
 	helpers.SetDynamicHost(*dynamicHost)
-	helpers.SetIdentityPublicAPIKey(*identityPublicAPIkey)
 	helpers.SetBucketConfig(*bucketRegion)
 	appctx.Renderer = render.New(render.Options{
 		IndentJSON: true,
