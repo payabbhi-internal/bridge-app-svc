@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/paypermint/appkit"
@@ -10,15 +9,15 @@ import (
 	"github.com/paypermint/bridge-app-svc/util"
 )
 
-//GET Operations
+//POST Operations
 
 //SyncCustomers perfors syncing of customers between our end and at SAP end
 func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 	ctxLogger := appkit.GetContextLogger(appCtx.Logger, req)
 
-	fmt.Println("***who:", req.Header.Get("who"))
+	ctxLogger.Info("inside SyncCustomers")
 
-	basicAuthCreds, brererTokenCreds, err := helpers.GetCredentialsFromRequestHeader(req)
+	basicAuthCreds, bearerTokenCreds, err := helpers.GetCredentialsFromRequestHeader(req)
 	if err != nil {
 		ctxLogger.Crit(err.Error())
 		util.RenderAPIErrorJSON(appCtx, w)
@@ -53,8 +52,7 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 	// 	fmt.Println(customerData)
 	// }
 
-	client := helpers.NewClient(basicAuthCreds, brererTokenCreds, req.RemoteAddr)
-	helpers.ChangeBaseURL(req, client)
+	client := helpers.NewClient(basicAuthCreds, bearerTokenCreds, req.RemoteAddr)
 	for index, customerData := range customersData {
 
 		if index == 0 {
@@ -94,7 +92,6 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 			util.RenderAPIErrorJSON(appCtx, w)
 			return
 		}
-		fmt.Println(customerData)
 	}
 	util.RenderJSON(appCtx, w, http.StatusOK, "OK!")
 	return

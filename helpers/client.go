@@ -10,10 +10,6 @@ import (
 	"time"
 )
 
-const (
-	PayabbhiBaseURL = "https://localhost:50091/api/v1"
-)
-
 // Client .
 type Client struct {
 	basicAuthCreds *BasicAuthCreds
@@ -43,7 +39,7 @@ func NewClient(basicAuthCreds *BasicAuthCreds, bearerTokenCreds *BearerAuthCreds
 		HTTPClient: &http.Client{
 			Timeout: 5 * time.Minute,
 		},
-		baseURL:    PayabbhiBaseURL,
+		baseURL:    fmt.Sprintf("https://%s/api/v1", GetDynamicHost()),
 		remoteAddr: remoteAddr,
 	}
 }
@@ -58,14 +54,8 @@ type payabbhiSuccessResponse struct {
 	Data interface{} `json:"data"`
 }
 
-//ChangeBaseURL changes the base url field set in header
-func ChangeBaseURL(req *http.Request, c *Client) {
-	c.baseURL = fmt.Sprintf("https://%s/api/v1", GetDynamicHost())
-}
-
 // Content-type and body should be already added to req
 func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
-	fmt.Println("inside sendRequestToPayabbhi")
 	if strings.Contains(req.Host, "localhost") {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
@@ -78,8 +68,6 @@ func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 		// req.Header.Add("env", c.tokenAuthCreds.environment)
 	}
 	req.RemoteAddr = ""
-	fmt.Println("***req.Header:", req.Header)
-	fmt.Println("***authorization:", req.Header.Get("Authorization"))
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {

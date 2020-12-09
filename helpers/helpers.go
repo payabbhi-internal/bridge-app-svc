@@ -190,9 +190,8 @@ func HasUnsupportedParameters(data map[string]string, keys ...string) (string, b
 
 //ReadCSVFromURL returns data from file location at a given url
 func ReadCSVFromURL(url string) ([][]string, error) {
-	resp, err := http.Get("file:/" + url)
+	resp, err := http.Get("http://" + url)
 	if err != nil {
-		fmt.Println("Err::  ", err)
 		return nil, err
 	}
 
@@ -201,7 +200,6 @@ func ReadCSVFromURL(url string) ([][]string, error) {
 	reader.Comma = ';'
 	data, err := reader.ReadAll()
 	if err != nil {
-		fmt.Println("Err1::  ", err)
 		return nil, err
 	}
 
@@ -213,14 +211,12 @@ func ReadCSVFile(filePath string) ([][]string, error) {
 	data := make([][]string, 0)
 	csvFile, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("error coming here")
 		return data, err
 	}
 	r := csv.NewReader(csvFile)
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
-			fmt.Println("Ending now")
 			break
 		}
 		if err != nil {

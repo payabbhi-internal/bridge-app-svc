@@ -24,6 +24,7 @@ type CreateCustomerRequest struct {
 	Env                string                 `json:"env,omitempty"`
 }
 
+//Address represents Address struct
 type Address struct {
 	AddressLine1 string `json:"address_line1,omitempty"`
 	AddressLine2 string `json:"address_line2,omitempty"`
@@ -32,6 +33,7 @@ type Address struct {
 	Pin          string `json:"pin,omitempty"`
 }
 
+//BankDetail represents BankDetail struct
 type BankDetail struct {
 	BankName        string `json:"bank_name,omitempty"`
 	Ifsc            string `json:"ifsc,omitempty"`
@@ -43,16 +45,12 @@ type BankDetail struct {
 
 // CreateCustomer calls payabbhi api for creating customer
 func (c *Client) CreateCustomer(createCustomerRequest *CreateCustomerRequest) error {
-	// jsonData := map[string]string{"firstname": "Nic", "lastname": "Raboy"}
 	jsonValue, _ := json.Marshal(createCustomerRequest)
-
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/customers", c.baseURL), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", "application/json")
-
 	if err := c.sendRequestToPayabbhi(req, nil); err != nil {
 		return err
 	}
