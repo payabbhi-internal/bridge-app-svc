@@ -1,0 +1,31 @@
+FROM       busybox
+ADD        bridge-app-svc bridge-app-svc
+ADD        zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
+
+ENV        WEBIP              0.0.0.0
+ENV        WEBPORT            50768
+ENV        WEBSERVERCERTPATH  ppm/webserver/server_cert
+ENV        WEBSERVERKEYPATH   ppm/webserver/server_key
+
+ENV        HEALTHIP 0.0.0.0
+ENV        HEALTHPORT 9060
+
+ENV        KEYCREDSPATH ppm/grpc/key
+
+ENV        DYNAMICHOST          payabbhi.com
+
+ENV        LOGFMT json
+ENV        LOGMODULE bridge-app-svc
+
+
+ENTRYPOINT /bridge-app-svc -health-ip=$HEALTHIP \
+                      -health-port=$HEALTHPORT \
+                      -key-creds-path=$KEYCREDSPATH \
+                      -log-fmt=$LOGFMT \
+                      -log-module=$LOGMODULE \
+                      -region=$REGION \
+                      -web-cert-path=$WEBSERVERCERTPATH \
+                      -web-key-path=$WEBSERVERKEYPATH \
+                      -web-ip=$WEBIP \
+                      -web-port=$WEBPORT \
+                      -dynamic-host=$DYNAMICHOST
