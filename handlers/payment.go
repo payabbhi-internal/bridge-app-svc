@@ -25,8 +25,8 @@ func SyncPayments(w http.ResponseWriter, req *http.Request) {
 	sapClient := helpers.CreateSAPClient(req.RemoteAddr)
 	ctxLogger.Info("SAP Client", "message", sapClient)
 	paymentUpdateRequest := &helpers.PostPaymentUpdateRequest{
-		Records: []*helpers.Record{
-			&helpers.Record{
+		Records: []*helpers.SapRecord{
+			&helpers.SapRecord{
 				CustomerNumber: "0001000063",
 				CustomerName:   "JINDAL STEEL & POWER LIMITED",
 				CompanyCode:    "MCL",
