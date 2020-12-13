@@ -11,6 +11,7 @@ ENV        HEALTHIP 0.0.0.0
 ENV        HEALTHPORT 9060
 
 ENV        KEYCREDSPATH ppm/grpc/key
+ENV        SAPUSERCREDSPATH ppm/bridgeapp/sap/cil
 
 ENV        DYNAMICHOST          payabbhi.com
 
@@ -21,6 +22,7 @@ ENV        LOGMODULE bridge-app-svc
 ENTRYPOINT /bridge-app-svc -health-ip=$HEALTHIP \
                       -health-port=$HEALTHPORT \
                       -key-creds-path=$KEYCREDSPATH \
+                      -sap-user-creds-path=$SAPUSERCREDSPATH \
                       -log-fmt=$LOGFMT \
                       -log-module=$LOGMODULE \
                       -region=$REGION \

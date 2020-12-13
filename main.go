@@ -18,8 +18,9 @@ const (
 )
 
 var (
-	dynamicHost  = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
-	bucketRegion = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
+	dynamicHost      = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
+	bucketRegion     = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
+	sapUserCredsPath = flag.String("sap-user-creds-path", "", "Secrets manager path where the sap user creds are stored")
 )
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 	go appkit.StartHealthCheckEndpoint(appctx)
 	helpers.SetDynamicHost(*dynamicHost)
 	helpers.SetBucketConfig(*bucketRegion)
+	helpers.SetSapUserCredsPath(*sapUserCredsPath)
 	appctx.Renderer = render.New(render.Options{
 		IndentJSON: true,
 	})

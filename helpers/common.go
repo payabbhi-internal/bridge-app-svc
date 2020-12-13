@@ -1,7 +1,8 @@
 package helpers
 
 var (
-	dynamicHost = ""
+	dynamicHost      = ""
+	sapUserCredsPath = ""
 )
 
 // SetDynamicHost sets host to be used in helpers
@@ -12,4 +13,14 @@ func SetDynamicHost(host string) {
 //GetDynamicHost gets host
 func GetDynamicHost() string {
 	return dynamicHost
+}
+
+// SetDynamicHost sets host to be used in helpers
+func SetSapUserCredsPath(path string) {
+	sapUserCredsPath = path
+}
+
+//GetDynamicHost gets host
+func GetSapUserCredsPath() string {
+	return sapUserCredsPath
 }

@@ -21,8 +21,22 @@ func SyncPayments(w http.ResponseWriter, req *http.Request) {
 		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, util.UnsupportedParamMsg, field)
 		return
 	}
+	traceID := appkit.TraceIDFromHTTPRequest(req)
+	vClient, err := appkit.VaultConnect(appCtx, traceID)
+	if err != nil {
+		ctxLogger.Crit(err.Error())
+		util.RenderAPIErrorJSON(appCtx, w)
+		return
+	}
 
-	sapClient := helpers.CreateSAPClient(req.RemoteAddr)
+	// sap user credentials from vault
+	userid, password, fetchErr := vClient.SAPClientCreds(helpers.GetSapUserCredsPath())
+	if fetchErr != nil {
+		ctxLogger.Crit(fetchErr.Error())
+		util.RenderAPIErrorJSON(appCtx, w)
+		return
+	}
+	sapClient := helpers.CreateSAPClient(req.RemoteAddr, userid, password)
 	ctxLogger.Info("SAP Client", "message", sapClient)
 	paymentUpdateRequest := &helpers.PostPaymentUpdateRequest{
 		Records: []*helpers.Record{
