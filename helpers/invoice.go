@@ -70,7 +70,7 @@ func (c *Client) GetInvoicesFromSap(getInvoicesFromSapRequest *GetInvoicesFromSa
 // CreateOrUpdatePayabbhiInvoice calls payabbhi api for creating or updating invoice
 func (c *Client) CreateOrUpdatePayabbhiInvoice(createOrUpdatePayabbhiInvoiceRequest *CreateOrUpdatePayabbhiInvoiceRequest) error {
 	jsonValue, _ := json.Marshal(createOrUpdatePayabbhiInvoiceRequest)
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/invoices", c.baseURL), bytes.NewBuffer(jsonValue))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/invoice_ins", c.baseURL), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return err
 	}
