@@ -144,7 +144,7 @@ func SyncInvoicesWithSAP(w http.ResponseWriter, req *http.Request, appCtx *appki
 	sapClient := CreateSAPClient(req.RemoteAddr)
 	ctxLogger.Info("SAP Client", "message", sapClient)
 
-	params, _, _ := GetRequestParams(req, "POST")
+	params, _, _ := GetRequestParams(req, "PUT")
 	if field, ok := HasUnsupportedParameters(params, util.KeyMerchantCustomerID, util.KeyCustomerID); ok {
 		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, util.UnsupportedParamMsg, field)
 		return
