@@ -10,11 +10,8 @@ bridge-app-svc: main.go
 bridge-app-svc.ubuntu: main.go
 	CGO_ENABLED=0 GOOS=linux go build -ldflags '-w -s -X github.com/paypermint/appkit.Commit=${commit} -X github.com/paypermint/appkit.Branch=$(branch) -X github.com/paypermint/appkit.AppkitCommit=${appkit_commit} -X github.com/paypermint/appkit.MskitCommit=${mskit_commit} ' -a -tags netgo .
 
-image: clean
-	docker build -t paypermint/bridge-app-svc:fat-latest .
-
 image.slim: clean bridge-app-svc.ubuntu
-	docker build -f `pwd`/Dockerfile.slim -t paypermint/bridge-app-svc:slim-latest .
+	docker build -f Dockerfile.slim -t paypermint/bridge-app-svc:slim-latest .
 
 clean:
 	go clean
