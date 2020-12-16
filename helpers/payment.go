@@ -16,24 +16,11 @@ import (
 
 //PostPaymentUpdateRequest represents struct to update payments at SAP end
 type PostPaymentUpdateRequest struct {
-	Records []*Record `json:"Records,omitempty"`
-}
-
-//Record represents Record struct
-type Record struct {
-	CustomerNumber string `json:"customer_number,omitempty"`
-	CustomerName   string `json:"customer_name,omitempty"`
-	CompanyCode    string `json:"company_code,omitempty"`
-	Description    string `json:"description,omitempty"`
-	Item           string `json:"item,omitempty"`
-	AmountDue      string `json:"amount_due,omitempty"`
-	PaymentAmount  string `json:"payment_amount,omitempty"`
-	BankAccount    string `json:"bank_account,omitempty"`
-	TransactionRef string `json:"transaction_ref,omitempty"`
+	Records []*SapRecord `json:"Records,omitempty"`
 }
 
 // PostPaymentUpdateToSAP calls SAP api for updating payments
-func (c *Client) PostPaymentUpdateToSAP(paymentUpdateRequest *PostPaymentUpdateRequest) (*PayabbhiSuccessResponse, error) {
+func (c *Client) PostPaymentUpdateToSAP(paymentUpdateRequest *PostPaymentUpdateRequest) (*SAPSuccessResponse, error) {
 	jsonValue, _ := json.Marshal(paymentUpdateRequest)
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/fipayconfirmationib", c.baseURL), bytes.NewBuffer(jsonValue))
 	if err != nil {
@@ -43,7 +30,7 @@ func (c *Client) PostPaymentUpdateToSAP(paymentUpdateRequest *PostPaymentUpdateR
 	res := models.PaymentUpdateResponse{
 		Records: &models.StatusRecord{},
 	}
-	var response *PayabbhiSuccessResponse
+	var response *SAPSuccessResponse
 	if response, err = c.sendRequestToSAP(req, res); err != nil {
 		return nil, err
 	}
@@ -105,8 +92,8 @@ func getRecordParamsForJSON(r *http.Request, itemKey string) (map[string]interfa
 	return params, EmptyString, nil
 }
 
-func getRecordItemParamsForJSON(values []interface{}) ([]*Record, string, error) {
-	var records []*Record
+func getRecordItemParamsForJSON(values []interface{}) ([]*SapRecord, string, error) {
+	var records []*SapRecord
 
 	for _, val := range values {
 		// val is an interface. which contains map[string]interface{} and for note its map[string](map[string]interface{})
@@ -117,48 +104,48 @@ func getRecordItemParamsForJSON(values []interface{}) ([]*Record, string, error)
 				util.KeyDescription, util.KeyPaymentAmount, util.KeyBankAccount, util.KeyTransactionRef); ok {
 				return nil, field, errors.New(util.UnsupportedParamMsg)
 			}
-			record := &Record{}
-			customerNumber, err := GetStringInterfaceParam(vFurther, util.KeyCustomerNumber)
+			record := &SapRecord{}
+			customerNumber, err := GetStringInterfaceParameter(vFurther, util.KeyCustomerNumber)
 			if err != nil {
 				return nil, util.KeyCustomerNumber, err
 			}
 			delete(vFurther, util.KeyCustomerNumber)
-			customerName, err := GetStringInterfaceParam(vFurther, util.KeyCustomerName)
+			customerName, err := GetStringInterfaceParameter(vFurther, util.KeyCustomerName)
 			if err != nil {
 				return nil, util.KeyCustomerName, errors.New(util.InvalidPostParameterMsg)
 			}
 			delete(vFurther, util.KeyCustomerName)
-			companyCode, err := GetStringInterfaceParam(vFurther, util.KeyCompanyCode)
+			companyCode, err := GetStringInterfaceParameter(vFurther, util.KeyCompanyCode)
 			if err != nil {
 				return nil, util.KeyCompanyCode, err
 			}
 			delete(vFurther, util.KeyCompanyCode)
-			description, err := GetStringInterfaceParam(vFurther, util.KeyDescription)
+			description, err := GetStringInterfaceParameter(vFurther, util.KeyDescription)
 			if err != nil {
 				return nil, util.KeyDescription, err
 			}
 			delete(vFurther, util.KeyDescription)
-			item, err := GetStringInterfaceParam(vFurther, util.KeyItem)
+			item, err := GetStringInterfaceParameter(vFurther, util.KeyItem)
 			if err != nil {
 				return nil, util.KeyItem, err
 			}
 			delete(vFurther, util.KeyItem)
-			amountDue, err := GetStringInterfaceParam(vFurther, util.KeyAmountDue)
+			amountDue, err := GetStringInterfaceParameter(vFurther, util.KeyAmountDue)
 			if err != nil {
 				return nil, util.KeyAmountDue, err
 			}
 			delete(vFurther, util.KeyAmountDue)
-			paymentAmount, err := GetStringInterfaceParam(vFurther, util.KeyPaymentAmount)
+			paymentAmount, err := GetStringInterfaceParameter(vFurther, util.KeyPaymentAmount)
 			if err != nil {
 				return nil, util.KeyPaymentAmount, err
 			}
 			delete(vFurther, util.KeyPaymentAmount)
-			bankAccount, err := GetStringInterfaceParam(vFurther, util.KeyBankAccount)
+			bankAccount, err := GetStringInterfaceParameter(vFurther, util.KeyBankAccount)
 			if err != nil {
 				return nil, util.KeyBankAccount, err
 			}
 			delete(vFurther, util.KeyBankAccount)
-			transActionRef, err := GetStringInterfaceParam(vFurther, util.KeyTransactionRef)
+			transActionRef, err := GetStringInterfaceParameter(vFurther, util.KeyTransactionRef)
 			if err != nil {
 				return nil, util.KeyTransactionRef, err
 			}

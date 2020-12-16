@@ -59,12 +59,12 @@ func CreateSAPClient(remoteAddr, userid, password string) *Client {
 	}
 }
 
-type PayabbhiErrorResponse struct {
+type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-type PayabbhiSuccessResponse struct {
+type SAPSuccessResponse struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data"`
 }
@@ -93,7 +93,7 @@ func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 
 	// Try to unmarshall into errorResponse
 	if res.StatusCode != http.StatusOK {
-		var errRes PayabbhiErrorResponse
+		var errRes ErrorResponse
 		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
 			return errors.New(errRes.Message)
 		}
@@ -101,10 +101,8 @@ func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 		return fmt.Errorf("unknown error, status code: %d", res.StatusCode)
 	}
 
-	fmt.Println("resp", json.NewDecoder(res.Body))
-
 	// Unmarshall and populate v
-	fullResponse := PayabbhiSuccessResponse{
+	fullResponse := SAPSuccessResponse{
 		Data: v,
 	}
 	if err = json.NewDecoder(res.Body).Decode(&fullResponse); err != nil {
@@ -115,7 +113,7 @@ func (c *Client) sendRequestToPayabbhi(req *http.Request, v interface{}) error {
 }
 
 // Content-type and body should be already added to req
-func (c *Client) sendRequestToSAP(req *http.Request, v interface{}) (*PayabbhiSuccessResponse, error) {
+func (c *Client) sendRequestToSAP(req *http.Request, v interface{}) (*SAPSuccessResponse, error) {
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 	if c.basicAuthCreds != nil {
 		req.SetBasicAuth(c.basicAuthCreds.accessID, c.basicAuthCreds.secretKey)
@@ -130,7 +128,7 @@ func (c *Client) sendRequestToSAP(req *http.Request, v interface{}) (*PayabbhiSu
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		errRes := PayabbhiErrorResponse{Code: res.StatusCode}
+		errRes := ErrorResponse{Code: res.StatusCode}
 		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
 			return nil, errors.New(errRes.Message)
 		}
@@ -139,15 +137,13 @@ func (c *Client) sendRequestToSAP(req *http.Request, v interface{}) (*PayabbhiSu
 	}
 
 	// Unmarshall and populate v
-	fullResponse := PayabbhiSuccessResponse{
+	fullResponse := SAPSuccessResponse{
 		Data: v,
 		Code: res.StatusCode,
 	}
 	if err = json.NewDecoder(res.Body).Decode(&fullResponse.Data); err != nil {
 		return nil, err
 	}
-
-	fmt.Println("SUCCESS RESPONSE FROM SAP END", fullResponse.Data)
 
 	return &fullResponse, nil
 }

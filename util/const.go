@@ -259,6 +259,20 @@ const (
 	KeyFilePath = "file_path"
 )
 
+const (
+	SyncWithSAP          = "SAP"
+	KeySapAmountDue      = "amount_due"
+	KeySapCompanyCode    = "company_code"
+	KeySapCustomerName   = "customer_name"
+	KeySapCustomerNumber = "customer_number"
+	KeySapDescription    = "description"
+	KeySapItem           = "item"
+)
+
+const (
+	CurrencyINR = "INR"
+)
+
 //for payment update notification to SAP
 const (
 	KeyRecords        = "Records"

@@ -22,8 +22,8 @@ func setRouter() *mux.Router {
 		},
 		models.Route{
 			Name:        "SyncInvoices",
-			Methods:     []string{"POST"},
-			Pattern:     "/invoices",
+			Methods:     []string{"PUT"},
+			Pattern:     "/sync_invoices",
 			HandlerFunc: handlers.SyncInvoices,
 		},
 		models.Route{
