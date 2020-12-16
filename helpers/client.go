@@ -45,16 +45,16 @@ func NewClient(basicAuthCreds *BasicAuthCreds, bearerTokenCreds *BearerAuthCreds
 }
 
 // CreateSAPClient creates new SAP Client with given username and password
-func CreateSAPClient(remoteAddr string) *Client {
+func CreateSAPClient(remoteAddr, userid, password string) *Client {
 	return &Client{
 		basicAuthCreds: &BasicAuthCreds{
-			accessID:  "PIEXTUSER",
-			secretKey: "cilpiext02",
+			accessID:  userid,
+			secretKey: password,
 		},
 		HTTPClient: &http.Client{
 			Timeout: 5 * time.Minute,
 		},
-		baseURL:    "http://202.21.35.71:8000/RESTAdapter",
+		baseURL:    fmt.Sprintf("http://%s", GetSapURL()),
 		remoteAddr: remoteAddr,
 	}
 }

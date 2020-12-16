@@ -272,3 +272,16 @@ const (
 const (
 	CurrencyINR = "INR"
 )
+
+//for payment update notification to SAP
+const (
+	KeyRecords        = "Records"
+	KeyCustomerNumber = "customer_number"
+	KeyCustomerName   = "customer_name"
+	KeyCompanyCode    = "company_code"
+	KeyItem           = "item"
+	KeyAmountDue      = "amount_due"
+	KeyPaymentAmount  = "payment_amount"
+	KeyBankAccount    = "bank_account"
+	KeyTransactionRef = "transaction_ref"
+)

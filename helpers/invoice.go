@@ -141,7 +141,22 @@ func toCreateOrUpdatePayabbhiInvoiceRequest(w http.ResponseWriter, appCtx *appki
 // SyncInvoicesWithSAP performs syncing of invoices between payabbhi & SAP system
 func SyncInvoicesWithSAP(w http.ResponseWriter, req *http.Request, appCtx *appkit.AppContext) {
 	ctxLogger := appkit.GetContextLogger(appCtx.Logger, req)
-	sapClient := CreateSAPClient(req.RemoteAddr)
+	traceID := appkit.TraceIDFromHTTPRequest(req)
+	vClient, err := appkit.VaultConnect(appCtx, traceID)
+	if err != nil {
+		ctxLogger.Crit(err.Error())
+		util.RenderAPIErrorJSON(appCtx, w)
+		return
+	}
+
+	// sap user credentials from vault
+	userid, password, fetchErr := vClient.SAPClientCreds(GetSapUserCredsPath())
+	if fetchErr != nil {
+		ctxLogger.Crit(fetchErr.Error())
+		util.RenderAPIErrorJSON(appCtx, w)
+		return
+	}
+	sapClient := CreateSAPClient(req.RemoteAddr, userid, password)
 	ctxLogger.Info("SAP Client", "message", sapClient)
 
 	params, _, _ := GetRequestParams(req, "PUT")

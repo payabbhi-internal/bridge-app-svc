@@ -83,7 +83,7 @@ func SyncCustomers(w http.ResponseWriter, req *http.Request) {
 			},
 			Gstin:              customerData[13],
 			Notes:              notesJSON,
-			MerchantCustomerID: customerData[16],
+			MerchantCustomerID: customerData[15],
 			HasPortalAccess:    true,
 		}
 		err := client.CreateCustomer(createCustomerRequest)
