@@ -16,11 +16,25 @@ func SyncPayments(w http.ResponseWriter, req *http.Request) {
 
 	ctxLogger.Info("inside SyncPayments")
 
-	params, _, _ := helpers.GetRequestParams(req, "POST")
-	if field, ok := helpers.HasUnsupportedParameters(params, util.KeyFilePath); ok {
+	params, field, err := helpers.GetParamsWithRecordRequest(req, util.KeyRecords)
+	if err != nil {
+		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, err.Error(), field)
+		return
+	}
+	if field, ok := helpers.HasUnsupportedInterfaceParameters(params, util.KeyRecords, field); ok {
 		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, util.UnsupportedParamMsg, field)
 		return
 	}
+
+	//Mandatory
+	recordItems, err := helpers.GetRecordsParam(params, util.KeyRecords, false)
+	if err != nil {
+		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, err.Error(), util.KeyRecords)
+		return
+	}
+
+	ctxLogger.Info("recordItems: ", "message", recordItems)
+
 	traceID := appkit.TraceIDFromHTTPRequest(req)
 	vClient, err := appkit.VaultConnect(appCtx, traceID)
 	if err != nil {
@@ -39,19 +53,7 @@ func SyncPayments(w http.ResponseWriter, req *http.Request) {
 	sapClient := helpers.CreateSAPClient(req.RemoteAddr, userid, password)
 	ctxLogger.Info("SAP Client", "message", sapClient)
 	paymentUpdateRequest := &helpers.PostPaymentUpdateRequest{
-		Records: []*helpers.Record{
-			&helpers.Record{
-				CustomerNumber: "0001000063",
-				CustomerName:   "JINDAL STEEL & POWER LIMITED",
-				CompanyCode:    "MCL",
-				Description:    "Proforma",
-				Item:           "9101000576",
-				AmountDue:      "3000.00",
-				PaymentAmount:  "3000.00",
-				BankAccount:    "007801022486",
-				TransactionRef: "UTI0001",
-			},
-		},
+		Records: recordItems,
 	}
 	response, err := sapClient.PostPaymentUpdateToSAP(paymentUpdateRequest)
 	if err != nil {
