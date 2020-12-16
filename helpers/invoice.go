@@ -37,6 +37,7 @@ type CreateOrUpdatePayabbhiInvoiceRequest struct {
 	LineItems              []*LineItem            `json:"line_items,omitempty"`
 	AmountDue              int64                  `json:"amount_due,omitempty"`
 	PartialPaymentMode     bool                   `json:"partial_payment_mode,omitempty"`
+	Label                  string                 `json:"label,omitempty"`
 }
 
 //LineItem represents LineItem struct
@@ -114,6 +115,13 @@ func toCreateOrUpdatePayabbhiInvoiceRequest(w http.ResponseWriter, appCtx *appki
 		return nil, err
 	}
 
+	//optional
+	label, err := GetStringInterfaceParam(sapInvoiceObj, util.KeySapCompanyCode, true)
+	if err != nil {
+		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, err.Error(), util.KeySapCompanyCode)
+		return nil, err
+	}
+
 	//Mandatory
 	amountDue, err := GetAmountParamInPaisa(sapInvoiceObj, util.KeySapAmountDue, false, true)
 	if err != nil {
@@ -127,6 +135,7 @@ func toCreateOrUpdatePayabbhiInvoiceRequest(w http.ResponseWriter, appCtx *appki
 		AmountDue:          amountDue,
 		PartialPaymentMode: true,
 		Currency:           util.CurrencyINR,
+		Label:              label,
 		LineItems: []*LineItem{
 			{
 				MerchantInvoiceItemId: item,
