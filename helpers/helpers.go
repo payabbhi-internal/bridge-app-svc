@@ -40,6 +40,20 @@ const (
 	b2bPortalDomain       = "b2b_portal"
 )
 
+//SapRecord represents SapRecord struct
+type SapRecord struct {
+	CustomerNumber string `json:"customer_number,omitempty"`
+	CustomerName   string `json:"customer_name,omitempty"`
+	CompanyCode    string `json:"company_code,omitempty"`
+	Description    string `json:"description,omitempty"`
+	Item           string `json:"item,omitempty"`
+	AmountDue      string `json:"amount_due,omitempty"`
+	PaymentAmount  string `json:"payment_amount,omitempty"`
+	BankAccount    string `json:"bank_account,omitempty"`
+	TransactionRef string `json:"transaction_ref,omitempty"`
+	CustomerID     string `json:"Customer_ID,omitempty"`
+}
+
 func isJWTAuthenticationRequest(request *http.Request) (string, bool) {
 	authToken := request.Header.Get("Authorization")
 	return authToken, strings.HasPrefix(authToken, validAuthPrefix)
@@ -251,6 +265,82 @@ func GetOptionalStringParam(params map[string]string, key string) (string, error
 	return EmptyString, nil
 }
 
+//GetStringInterfaceParam returns the value of key in params
+func GetStringInterfaceParam(params map[string]interface{}, key string, optional bool) (string, error) {
+	if value, ok := params[key]; ok {
+		if value == EmptyString && !optional {
+			return EmptyString, errors.New(util.InvalidPostParameterMsg)
+		}
+
+		switch val := value.(type) {
+		case json.Number:
+			return val.String(), nil
+		case string:
+			return val, nil
+		case int:
+			return strconv.Itoa(val), nil
+		case int64:
+			return strconv.FormatInt(val, 10), nil
+		case float64:
+			return strconv.FormatFloat(val, 'f', 0, 64), nil
+		default:
+			if !optional {
+				return EmptyString, errors.New(util.InvalidPostParameterMsg)
+			}
+		}
+	}
+	if optional {
+		return EmptyString, nil
+	}
+
+	return EmptyString, errors.New(util.MissingMandatoryField)
+}
+
+//GetAmountParamInPaisa returns the amount field's value in paisa
+func GetAmountParamInPaisa(params map[string]interface{}, key string, optional, isPositive bool) (int64, error) {
+	if value, ok := params[key]; ok {
+		switch val := value.(type) {
+		case json.Number:
+			valJSON := val.String()
+			intValue, err := strconv.ParseInt(valJSON, 10, 64)
+			if err != nil {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			if isPositive && intValue <= 0 {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			return intValue * 100, nil
+		case string:
+			floatValue, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			intValue := int64(floatValue * 100)
+			if isPositive && intValue < 0 {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			return intValue, nil
+		case int64:
+			if isPositive && val <= 0 {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			return val * 100, nil
+		case float64:
+			intValue := int64(val * 100)
+			if isPositive && intValue <= 0 {
+				return 0, errors.New(util.InvalidPostParameterMsg)
+			}
+			return intValue, nil
+		default:
+			return 0, errors.New(util.InvalidPostParameterMsg)
+		}
+	}
+	if optional {
+		return 0, nil
+	}
+	return 0, errors.New(util.MissingMandatoryField)
+}
+
 //HasUnsupportedInterfaceParameters returns true if the data map contains a key not present in the list of keys
 func HasUnsupportedInterfaceParameters(data map[string]interface{}, keys ...string) (string, bool) {
 	expected := map[string]bool{}
@@ -265,9 +355,9 @@ func HasUnsupportedInterfaceParameters(data map[string]interface{}, keys ...stri
 	return EmptyString, false
 }
 
-//GetStringInterfaceParam returns the value of key in params
+//GetStringInterfaceParameter returns the value of key in params
 //TODO refactor
-func GetStringInterfaceParam(params map[string]interface{}, key string) (string, error) {
+func GetStringInterfaceParameter(params map[string]interface{}, key string) (string, error) {
 	if value, ok := params[key]; ok {
 		if value == EmptyString || (key == util.KeyCurrency && params[key] != "INR") {
 			return EmptyString, errors.New(util.InvalidPostParameterMsg)
@@ -301,16 +391,16 @@ func GetParamsWithRecordRequest(r *http.Request, itemKey string) (map[string]int
 }
 
 //GetRecordsParam creates a record request from param map
-func GetRecordsParam(params map[string]interface{}, recordKey string, optional bool) ([]*Record, error) {
-	var recordRequests []*Record
+func GetRecordsParam(params map[string]interface{}, recordKey string, optional bool) ([]*SapRecord, error) {
+	var recordRequests []*SapRecord
 	if recordItems, ok := params[recordKey]; ok {
 		switch vv := recordItems.(type) {
-		case []*Record:
+		case []*SapRecord:
 			if len(vv) == 0 {
 				return nil, errors.New(util.InvalidPostParameterMsg)
 			}
 			for _, record := range vv {
-				recordRequests = append(recordRequests, &Record{
+				recordRequests = append(recordRequests, &SapRecord{
 					CustomerNumber: record.CustomerNumber,
 					CustomerName:   record.CustomerName,
 					CompanyCode:    record.CompanyCode,
