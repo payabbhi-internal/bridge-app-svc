@@ -54,7 +54,7 @@ func CreateSAPClient(remoteAddr, userid, password string) *Client {
 		HTTPClient: &http.Client{
 			Timeout: 5 * time.Minute,
 		},
-		baseURL:    "http://202.21.35.71:8000/RESTAdapter",
+		baseURL:    fmt.Sprintf("http://%s", GetSapURL()),
 		remoteAddr: remoteAddr,
 	}
 }
