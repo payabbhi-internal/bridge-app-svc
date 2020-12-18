@@ -311,7 +311,7 @@ func GetAmountParamInPaisa(params map[string]interface{}, key string, optional, 
 			}
 			return intValue * 100, nil
 		case string:
-			floatValue, err := strconv.ParseFloat(val, 64)
+			floatValue, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
 			if err != nil {
 				return 0, errors.New(util.InvalidPostParameterMsg)
 			}
