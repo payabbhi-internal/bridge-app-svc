@@ -12,7 +12,7 @@ func setRouter() *mux.Router {
 	router := mux.NewRouter()
 	router.NotFoundHandler = http.HandlerFunc(handlers.NotFound)
 	router.HandleFunc("/apilist", handlers.GetAPIList).Methods("GET")
-	apiV1 := router.PathPrefix("/bridge_app/v1").Subrouter()
+	apiV1 := router.PathPrefix("/bridgeapp/v1").Subrouter()
 	routesList := []models.Route{
 		models.Route{
 			Name:        "SyncCustomersAPI",
