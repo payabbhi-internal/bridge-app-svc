@@ -165,9 +165,18 @@ func SyncInvoicesWithSAP(w http.ResponseWriter, req *http.Request, appCtx *appki
 		util.RenderAPIErrorJSON(appCtx, w)
 		return
 	}
+	fmt.Println("Calling Create SAP Client")
 	sapClient := CreateSAPClient(req.RemoteAddr, userid, password)
-	ctxLogger.Info("SAP Client Created", "userid", userid, "password", password, "remoteAddress", req.RemoteAddr, "baseurl", sapClient.baseURL)
-
+	fmt.Println("SAP Client Created")
+	fmt.Println("RemoteAddr")
+	fmt.Println(req.RemoteAddr)
+	fmt.Println("baseURL")
+	fmt.Println(sapClient.baseURL)
+	fmt.Println("AccessId")
+	fmt.Println(sapClient.basicAuthCreds.accessID)
+	fmt.Println("SecretKey")
+	fmt.Println(sapClient.basicAuthCreds.secretKey)
+	fmt.Println("SAP Client Created")
 	params, _, _ := GetRequestParams(req, "PUT")
 	if field, ok := HasUnsupportedParameters(params, util.KeyMerchantCustomerID, util.KeyCustomerID); ok {
 		util.RenderErrorJSON(appCtx, w, http.StatusBadRequest, util.UnsupportedParamMsg, field)
