@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	dynamicHost      = flag.String("dynamic-host", "payabbhi.com", "Dynamic host")
+	dynamicHost      = flag.String("dynamic-host", "payscape.in", "Dynamic host")
 	bucketRegion     = flag.String("bucket-region", "", "Region for AWS where the bucket for file upload has been created")
 	sapUserCredsPath = flag.String("sap-user-creds-path", "", "Secrets manager path where the sap user creds are stored")
 	sapURL           = flag.String("sap-base-url", "", "SAP Base URL")

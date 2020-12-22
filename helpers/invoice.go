@@ -224,6 +224,7 @@ func pushInvoicesToPayabbhi(w http.ResponseWriter, req *http.Request, params map
 	if sapInvoicesData, present := sapData["Records"]; present {
 		if sapInvoices, ok := sapInvoicesData.([]interface{}); ok {
 			payabbhiClient := NewClient(basicAuthCreds, bearerTokenCreds, req.RemoteAddr)
+			ctxLogger.Info("dynamic host ", "message", GetDynamicHost())
 			for _, sapInvoice := range sapInvoices {
 				if sapInvoiceObj, ok := sapInvoice.(map[string]interface{}); ok {
 					createOrUpdatePayabbhiInvoiceRequest, err := toCreateOrUpdatePayabbhiInvoiceRequest(w, appCtx, params, sapInvoiceObj)
