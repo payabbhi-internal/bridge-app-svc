@@ -69,13 +69,14 @@ func (c *Client) GetInvoicesFromSap(getInvoicesFromSapRequest *GetInvoicesFromSa
 }
 
 // CreateOrUpdatePayabbhiInvoice calls payabbhi api for creating or updating invoice
-func (c *Client) CreateOrUpdatePayabbhiInvoice(createOrUpdatePayabbhiInvoiceRequest *CreateOrUpdatePayabbhiInvoiceRequest) error {
+func (c *Client) CreateOrUpdatePayabbhiInvoice(createOrUpdatePayabbhiInvoiceRequest *CreateOrUpdatePayabbhiInvoiceRequest, platform string) error {
 	jsonValue, _ := json.Marshal(createOrUpdatePayabbhiInvoiceRequest)
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/invoice_ins", c.baseURL), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Platform", platform)
 	if err := c.sendRequestToPayabbhi(req, nil); err != nil {
 		return err
 	}
@@ -225,6 +226,7 @@ func pushInvoicesToPayabbhi(w http.ResponseWriter, req *http.Request, params map
 		if sapInvoices, ok := sapInvoicesData.([]interface{}); ok {
 			payabbhiClient := NewClient(basicAuthCreds, bearerTokenCreds, req.RemoteAddr)
 			ctxLogger.Info("dynamic host ", "message", GetDynamicHost())
+			platform := req.Header.Get("Platform")
 			for _, sapInvoice := range sapInvoices {
 				if sapInvoiceObj, ok := sapInvoice.(map[string]interface{}); ok {
 					createOrUpdatePayabbhiInvoiceRequest, err := toCreateOrUpdatePayabbhiInvoiceRequest(w, appCtx, params, sapInvoiceObj)
@@ -234,7 +236,7 @@ func pushInvoicesToPayabbhi(w http.ResponseWriter, req *http.Request, params map
 						return
 					}
 					ctxLogger.Info("calling payabbhi CreateOrUpdateInvoice api", "request", createOrUpdatePayabbhiInvoiceRequest)
-					err = payabbhiClient.CreateOrUpdatePayabbhiInvoice(createOrUpdatePayabbhiInvoiceRequest)
+					err = payabbhiClient.CreateOrUpdatePayabbhiInvoice(createOrUpdatePayabbhiInvoiceRequest, platform)
 					if err != nil {
 						ctxLogger.Crit(err.Error())
 						util.RenderAPIErrorJSON(appCtx, w)

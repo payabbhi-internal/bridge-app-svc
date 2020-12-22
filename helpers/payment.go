@@ -20,13 +20,14 @@ type PostPaymentUpdateRequest struct {
 }
 
 // PostPaymentUpdateToSAP calls SAP api for updating payments
-func (c *Client) PostPaymentUpdateToSAP(paymentUpdateRequest *PostPaymentUpdateRequest) (*SAPSuccessResponse, error) {
+func (c *Client) PostPaymentUpdateToSAP(paymentUpdateRequest *PostPaymentUpdateRequest, platform string) (*SAPSuccessResponse, error) {
 	jsonValue, _ := json.Marshal(paymentUpdateRequest)
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/fipayconfirmationib", c.baseURL), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Platform", platform)
 	res := models.PaymentUpdateResponse{
 		Records: &models.StatusRecord{},
 	}

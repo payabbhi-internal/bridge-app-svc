@@ -55,7 +55,8 @@ func SyncPayments(w http.ResponseWriter, req *http.Request) {
 	paymentUpdateRequest := &helpers.PostPaymentUpdateRequest{
 		Records: recordItems,
 	}
-	response, err := sapClient.PostPaymentUpdateToSAP(paymentUpdateRequest)
+	platform := req.Header.Get("Platform")
+	response, err := sapClient.PostPaymentUpdateToSAP(paymentUpdateRequest, platform)
 	if err != nil {
 		ctxLogger.Crit(err.Error())
 		util.RenderAPIErrorJSON(appCtx, w)
