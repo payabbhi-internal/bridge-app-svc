@@ -1,2 +1,2 @@
 # bridge-app-svc
-An adapter service
+An adapter service 
