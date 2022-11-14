@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-
+  _ "time/tzdata"
 	"github.com/paypermint/appkit"
 	"github.com/paypermint/bridge-app-svc/handlers"
 	"github.com/paypermint/bridge-app-svc/helpers"
